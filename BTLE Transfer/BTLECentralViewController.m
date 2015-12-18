@@ -126,7 +126,10 @@
  */
 - (void)scan
 {
-    [self.centralManager scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:TRANSFER_SERVICE_UUID]]
+//    [self.centralManager scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:TRANSFER_SERVICE_UUID]]
+//    changed to nil to scan for everything in the area!
+    
+    [self.centralManager scanForPeripheralsWithServices:nil
                                                 options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
     
     NSLog(@"Scanning started");
@@ -140,16 +143,14 @@
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
     // Reject any where the value is above reasonable range
-    if (RSSI.integerValue > -15) {
-        return;
-    }
+    //if (RSSI.integerValue > -15) {
+    //    return;
+    //}
         
     // Reject if the signal strength is too low to be close enough (Close is around -22dB)
-    if (RSSI.integerValue < -35) {
-        return;
-    }
-    
-    NSLog(@"Discovered %@ at %@", peripheral.name, RSSI);
+    //if (RSSI.integerValue < -35) {
+    //    return;
+    //}
     
     // Ok, it's in range - have we already seen it?
     if (self.discoveredPeripheral != peripheral) {
@@ -159,6 +160,10 @@
         
         // And connect
         NSLog(@"Connecting to peripheral %@", peripheral);
+        if (peripheral.services) {
+            NSLog(@"Peripheral has services");
+        }
+        NSLog(@"Advertisement Data %@", advertisementData);
         [self.centralManager connectPeripheral:peripheral options:nil];
     }
 }
@@ -186,11 +191,33 @@
     // Clear the data that we may already have
     [self.data setLength:0];
 
+    // ???
     // Make sure we get the discovery callbacks
     peripheral.delegate = self;
-    
+
+    //THIS WILL GO THROUGH TO MODULES
     // Search only for services that match our UUID
     [peripheral discoverServices:@[[CBUUID UUIDWithString:TRANSFER_SERVICE_UUID]]];
+    
+    bool toggle = false;
+    
+    if (toggle) {
+        // below does not trigger changes in the GATT message :( but we should be creating specific trigger messages
+        CBUUID * lightToggleUuid = [CBUUID UUIDWithString:@"315950C6-8A99-4C38-9AF6-B89F5B49BDAC"];
+        CBCharacteristicProperties writeWithoutResponse = CBCharacteristicPropertyWriteWithoutResponse;
+        NSData *characteristicData = [NSData data];
+        CBAttributePermissions readPermissions = CBAttributePermissionsReadable;
+    
+        CBMutableCharacteristic *characteristic = [[CBMutableCharacteristic alloc] initWithType:lightToggleUuid properties:writeWithoutResponse value: characteristicData permissions: readPermissions];
+        NSData *value = [NSData data];
+    
+        [peripheral writeValue:value forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
+    }
+    
+    NSLog(@"Sent Light Toggle Message");
+    
+    [central cancelPeripheralConnection:peripheral];
+    NSLog(@"Released peripheral");
 }
 
 
