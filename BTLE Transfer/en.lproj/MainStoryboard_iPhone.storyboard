@@ -113,7 +113,7 @@
                                 </connections>
                             </textView>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Advertising" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GMc-4O-5iW">
-                                <rect key="frame" x="20" y="279" width="171" height="20.5"/>
+                                <rect key="frame" x="20" y="279" width="171" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="171" id="9AT-WB-28X"/>
                                 </constraints>
