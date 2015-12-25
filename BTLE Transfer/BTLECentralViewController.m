@@ -126,7 +126,7 @@
  */
 - (void)scan
 {
-    [self.centralManager scanForPeripheralsWithServices:@[[CBUUID UUIDWithString:TRANSFER_SERVICE_UUID]]
+    [self.centralManager scanForPeripheralsWithServices:nil
                                                 options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
     
     NSLog(@"Scanning started");
@@ -145,7 +145,7 @@
     }
         
     // Reject if the signal strength is too low to be close enough (Close is around -22dB)
-    if (RSSI.integerValue < -35) {
+    if (RSSI.integerValue < -55) {
         return;
     }
     
@@ -189,8 +189,8 @@
     // Make sure we get the discovery callbacks
     peripheral.delegate = self;
     
-    // Search only for services that match our UUID
-    [peripheral discoverServices:@[[CBUUID UUIDWithString:TRANSFER_SERVICE_UUID]]];
+    // Search for all services
+    [peripheral discoverServices:nil];
 }
 
 
@@ -204,12 +204,11 @@
         return;
     }
     
-    // Discover the characteristic we want...
+    // Just pick the first available service - workaround due to how the fruity mesh services are working now
+    CBService *service = peripheral.services[0];
+    NSLog(@"Discovering characteristics for service: %@", service);
+    [peripheral discoverCharacteristics:nil forService:service];
     
-    // Loop through the newly filled peripheral.services array, just in case there's more than one.
-    for (CBService *service in peripheral.services) {
-        [peripheral discoverCharacteristics:@[[CBUUID UUIDWithString:TRANSFER_CHARACTERISTIC_UUID]] forService:service];
-    }
 }
 
 
@@ -225,18 +224,22 @@
         return;
     }
     
-    // Again, we loop through the array, just in case.
-    for (CBCharacteristic *characteristic in service.characteristics) {
-        
-        // And check if it's the right one
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TRANSFER_CHARACTERISTIC_UUID]]) {
-     
-            // If it is, subscribe to it
-            [peripheral setNotifyValue:YES forCharacteristic:characteristic];
-        }
-    }
+    // Again, pick the first characteristic - more workarounds
+    CBCharacteristic *characteristic = service.characteristics[0];
+    NSLog(@"Found characteristic: %@", characteristic);
     
-    // Once this is complete, we just need to wait for the data to come in.
+    NSData *handShakeInitData;
+    handShakeInitData = [@"N 001 5000" dataUsingEncoding:NSUTF8StringEncoding];
+    [peripheral writeValue:handShakeInitData forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+}
+
+//Called after our initial handShakeInitData write has been received, so now we send the handShake ack
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+{
+    NSLog(@"Handshake callback was received");
+    NSData *handShakeAckData;
+    handShakeAckData = [@"N 001 5000" dataUsingEncoding:NSUTF8StringEncoding];
+    [peripheral writeValue:handShakeAckData forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
 }
 
 
