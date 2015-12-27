@@ -61,6 +61,7 @@
 
 @property (strong, nonatomic) CBCentralManager      *centralManager;
 @property (strong, nonatomic) CBPeripheral          *discoveredPeripheral;
+@property (strong, nonatomic) CBCharacteristic      *discoveredCharacteristic;
 @property (strong, nonatomic) NSMutableData         *data;
 
 @end
@@ -96,14 +97,21 @@
 
 //MESH DEVICE BUTTON CONTROLS
 - (IBAction)onButton1:(UIButton *)sender {
+    [self sendMeshData:255 forNode:1000];
 }
 - (IBAction)offButton1:(UIButton *)sender {
+    [self sendMeshData:100 forNode:1000];
 }
 - (IBAction)onButton2:(UIButton *)sender {
+    [self sendMeshData:255 forNode:2000];
 }
 - (IBAction)offButton2:(UIButton *)sender {
+    [self sendMeshData:100 forNode:2000];
 }
 - (IBAction)deviceSlider:(UISlider *)sender {
+    int sliderValue = (int)(sender.value * 255);
+    //TODO - Don't respond to continous event updates
+    //[self sendMeshData:sliderValue forNode:3000];
 }
 
 
@@ -215,7 +223,9 @@
     
     // Again, pick the first characteristic - more workarounds
     CBCharacteristic *characteristic = service.characteristics[0];
+    _discoveredCharacteristic = characteristic;
     NSLog(@"Found characteristic: %@", characteristic);
+    
     
     NSData *handShakeInitData;
     handShakeInitData = [@"N 001 5000" dataUsingEncoding:NSUTF8StringEncoding];
@@ -234,11 +244,12 @@
 
 
 
-//If a disconnection happens, we need to clean up our local copy of the peripheral
+//If a disconnection happens, we need to clean up our local copy of the peripheral and characteristic
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
     NSLog(@"Peripheral Disconnected");
     self.discoveredPeripheral = nil;
+    self.discoveredCharacteristic = nil;
     
     [self setStatusDisconnected];
 }
@@ -269,6 +280,16 @@
     _statusTextLabel.text = connectionStatus;
     NSLog(@"%@", connectionStatus);
     [_connectButtonTextLabel setTitle:@"DISCONNECT" forState:UIControlStateNormal];
+}
+
+-(void)sendMeshData:(int)dataValue forNode:(int)nodeId{
+    NSArray *meshDataComponents = @[@"N", [NSString stringWithFormat:@"%d", dataValue], [NSString stringWithFormat:@"%d", nodeId]];
+    NSString *meshDataString = [meshDataComponents componentsJoinedByString:@" "];
+    NSData *meshData = [meshDataString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSLog(@"Sent data: %@", meshDataString);
+    [_discoveredPeripheral writeValue:meshData forCharacteristic:_discoveredCharacteristic
+                                 type:CBCharacteristicWriteWithoutResponse];
 }
 
 @end
