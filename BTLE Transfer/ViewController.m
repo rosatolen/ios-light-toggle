@@ -52,10 +52,19 @@
 #import "ViewController.h"
 
 @interface ViewController ()
+@property (weak, nonatomic) IBOutlet UILabel *statusTextLabel;
+@property (weak, nonatomic) IBOutlet UIButton *connectButtonTextLabel;
 
 @end
 
 @implementation ViewController
+
+//Properties
+- (IBAction)connectButton:(UIButton *)sender {
+    _statusTextLabel.text = @"Now Connecting...";
+    [_connectButtonTextLabel setTitle:@"DISCONNECT" forState:UIControlStateNormal];
+}
+
 
 - (void)viewDidLoad
 {
