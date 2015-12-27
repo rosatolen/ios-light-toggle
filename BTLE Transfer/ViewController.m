@@ -50,32 +50,213 @@
  */
 
 #import "ViewController.h"
+#import <CoreBluetooth/CoreBluetooth.h>
+#import "TransferService.h"
 
-@interface ViewController ()
+
+@interface ViewController () <CBCentralManagerDelegate, CBPeripheralDelegate>
+
 @property (weak, nonatomic) IBOutlet UILabel *statusTextLabel;
 @property (weak, nonatomic) IBOutlet UIButton *connectButtonTextLabel;
 
+@property (strong, nonatomic) CBCentralManager      *centralManager;
+@property (strong, nonatomic) CBPeripheral          *discoveredPeripheral;
+@property (strong, nonatomic) NSMutableData         *data;
+
 @end
+
+
+
 
 @implementation ViewController
 
-//Properties
 - (IBAction)connectButton:(UIButton *)sender {
-    _statusTextLabel.text = @"Now Connecting...";
-    [_connectButtonTextLabel setTitle:@"DISCONNECT" forState:UIControlStateNormal];
+    
+    if (!self.discoveredPeripheral.state == (bool)CBPeripheralStateConnected) {
+        [self scan];
+        return;
+    }
+    
+    [self cleanup];
 }
-
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+    
+    _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+    _data = [[NSMutableData alloc] init];
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+}
+
+
+
+
+
+//CENTRAL METHODS
+
+- (void)centralManagerDidUpdateState:(CBCentralManager *)central
+{
+    if (central.state != CBCentralManagerStatePoweredOn) {
+        [self setStatusDisconnected];
+    }
+}
+
+
+//Scan for all peripherals
+- (void)scan
+{
+    [self.centralManager scanForPeripheralsWithServices:nil options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
+    [self setStatus:@"Scanning started..."];
+}
+
+
+//Called as soon as any nearby BLE device is found, then we connect to the device
+//TODO - Filter only fruity mesh devices
+- (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
+{
+    // Reject any where the value is above reasonable range
+    if (RSSI.integerValue > -15) {
+        return;
+    }
+    
+    // Reject if the signal strength is too low to be close enough (Close is around -22dB)
+    if (RSSI.integerValue < -55) {
+        return;
+    }
+    
+    NSLog(@"Discovered %@ at %@", peripheral.name, RSSI);
+    
+    // Ok, it's in range - have we already seen it?
+    if (self.discoveredPeripheral != peripheral) {
+        
+        // Save a local copy of the peripheral, so CoreBluetooth doesn't get rid of it
+        self.discoveredPeripheral = peripheral;
+        
+        // And connect
+        NSLog(@"Connecting to peripheral %@", peripheral);
+        [self.centralManager connectPeripheral:peripheral options:nil];
+    }
+}
+
+
+/** If the connection fails for whatever reason, we need to deal with it.
+ */
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
+{
+    NSLog(@"Failed to connect to %@. (%@)", peripheral, [error localizedDescription]);
+    [self cleanup];
+}
+
+
+//After connecting we look for the first available service
+//TODO - Filter only fruity mesh service
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral
+{
+    [self setStatus:@"Peripheral Connected"];
+    
+    // Stop scanning
+    [self.centralManager stopScan];
+    NSLog(@"Scanning stopped");
+    
+    // Clear the data that we may already have
+    [self.data setLength:0];
+    
+    // Make sure we get the discovery callbacks
+    peripheral.delegate = self;
+    
+    // Search for all services
+    [peripheral discoverServices:nil];
+}
+
+
+//When the first service is discovered, find the associated characterisitics
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
+{
+    if (error) {
+        NSLog(@"Error discovering services: %@", [error localizedDescription]);
+        [self cleanup];
+        return;
+    }
+    
+    // Just pick the first available service - workaround due to how the fruity mesh services are working now
+    CBService *service = peripheral.services[0];
+    NSLog(@"Discovering characteristics for service: %@", service);
+    [peripheral discoverCharacteristics:nil forService:service];
+    
+}
+
+
+// A characteristic was discovered.
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error
+{
+    // Deal with errors (if any)
+    if (error) {
+        NSLog(@"Error discovering characteristics: %@", [error localizedDescription]);
+        [self cleanup];
+        return;
+    }
+    
+    // Again, pick the first characteristic - more workarounds
+    CBCharacteristic *characteristic = service.characteristics[0];
+    NSLog(@"Found characteristic: %@", characteristic);
+    
+    NSData *handShakeInitData;
+    handShakeInitData = [@"N 001 5000" dataUsingEncoding:NSUTF8StringEncoding];
+    [peripheral writeValue:handShakeInitData forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+}
+
+//Called after our initial handShakeInitData write has been received, so now we send the handShake ACK
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error
+{
+    NSLog(@"Handshake callback was received");
+    NSData *handShakeAckData;
+    handShakeAckData = [@"N 001 5000" dataUsingEncoding:NSUTF8StringEncoding];
+    [peripheral writeValue:handShakeAckData forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
+    [self setStatus:@"Connected to Mesh"];
+}
+
+
+
+//If a disconnection happens, we need to clean up our local copy of the peripheral
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
+{
+    NSLog(@"Peripheral Disconnected");
+    self.discoveredPeripheral = nil;
+    
+    [self setStatusDisconnected];
+}
+
+
+// Call this when things either go wrong, or you're done with the connection.
+- (void)cleanup
+{
+    // Don't do anything if we're not connected, otherwise cancel connection
+    if (!self.discoveredPeripheral.state == (bool)CBPeripheralStateConnected) {
+        return;
+    }
+    
+    [self.centralManager cancelPeripheralConnection:self.discoveredPeripheral];
+    [self setStatusDisconnected];
+}
+
+
+- (void)setStatusDisconnected {
+    NSString *connectionStatus = @"Disconnected";
+    _statusTextLabel.text = connectionStatus;
+    NSLog(@"%@", connectionStatus);
+    [_connectButtonTextLabel setTitle:@"CONNECT" forState:UIControlStateNormal];
+}
+
+
+- (void)setStatus:(NSString *) connectionStatus {
+    _statusTextLabel.text = connectionStatus;
+    NSLog(@"%@", connectionStatus);
+    [_connectButtonTextLabel setTitle:@"DISCONNECT" forState:UIControlStateNormal];
 }
 
 @end
