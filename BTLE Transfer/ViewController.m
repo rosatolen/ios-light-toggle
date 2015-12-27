@@ -94,6 +94,18 @@
 }
 
 
+//MESH DEVICE BUTTON CONTROLS
+- (IBAction)onButton1:(UIButton *)sender {
+}
+- (IBAction)offButton1:(UIButton *)sender {
+}
+- (IBAction)onButton2:(UIButton *)sender {
+}
+- (IBAction)offButton2:(UIButton *)sender {
+}
+- (IBAction)deviceSlider:(UISlider *)sender {
+}
+
 
 
 
