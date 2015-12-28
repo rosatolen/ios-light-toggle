@@ -147,13 +147,8 @@ unsigned short nodeId3 = 33333;
 //TODO - Filter only fruity mesh devices
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
-    // Reject any where the value is above reasonable range
-    if (RSSI.integerValue > -15) {
-        return;
-    }
-    
-    // Reject if the signal strength is too low to be close enough (Close is around -22dB)
-    if (RSSI.integerValue < -55) {
+    // Reject if the peripheral name is not FRUITY
+    if (![peripheral.name isEqualToString:@"FRUITY"]){
         return;
     }
     
