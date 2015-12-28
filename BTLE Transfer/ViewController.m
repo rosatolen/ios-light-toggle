@@ -87,6 +87,7 @@
     
     _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
     _data = [[NSMutableData alloc] init];
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -94,24 +95,31 @@
     [super didReceiveMemoryWarning];
 }
 
+//TODO - Find a better place to put this
+//NODE IDs
+unsigned short nodeId1 = 10731;
+unsigned short nodeId2 = 10021;
+unsigned short nodeId3 = 33333;
+
+
 
 //MESH DEVICE BUTTON CONTROLS
 - (IBAction)onButton1:(UIButton *)sender {
-    [self sendMeshData:255 forNode:1000];
+    [self sendMeshData:255 forNode:nodeId1];
 }
 - (IBAction)offButton1:(UIButton *)sender {
-    [self sendMeshData:0 forNode:1000];
+    [self sendMeshData:0 forNode:nodeId1];
 }
 - (IBAction)onButton2:(UIButton *)sender {
-    [self sendMeshData:255 forNode:2000];
+    [self sendMeshData:255 forNode:nodeId2];
 }
 - (IBAction)offButton2:(UIButton *)sender {
-    [self sendMeshData:0 forNode:2000];
+    [self sendMeshData:0 forNode:nodeId2];
 }
 - (IBAction)deviceSlider:(UISlider *)sender {
-    int sliderValue = (int)(sender.value * 255);
+    //int sliderValue = (int)(sender.value * 255);
     //TODO - Don't respond to continous event updates
-    //[self sendMeshData:sliderValue forNode:3000];
+    //[self sendMeshData:sliderValue forNode:nodeId3];
 }
 
 
