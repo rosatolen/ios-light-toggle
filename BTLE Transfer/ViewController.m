@@ -100,13 +100,13 @@
     [self sendMeshData:255 forNode:1000];
 }
 - (IBAction)offButton1:(UIButton *)sender {
-    [self sendMeshData:100 forNode:1000];
+    [self sendMeshData:0 forNode:1000];
 }
 - (IBAction)onButton2:(UIButton *)sender {
     [self sendMeshData:255 forNode:2000];
 }
 - (IBAction)offButton2:(UIButton *)sender {
-    [self sendMeshData:100 forNode:2000];
+    [self sendMeshData:0 forNode:2000];
 }
 - (IBAction)deviceSlider:(UISlider *)sender {
     int sliderValue = (int)(sender.value * 255);
@@ -282,14 +282,22 @@
     [_connectButtonTextLabel setTitle:@"DISCONNECT" forState:UIControlStateNormal];
 }
 
--(void)sendMeshData:(int)dataValue forNode:(int)nodeId{
-    NSArray *meshDataComponents = @[@"N", [NSString stringWithFormat:@"%d", dataValue], [NSString stringWithFormat:@"%d", nodeId]];
-    NSString *meshDataString = [meshDataComponents componentsJoinedByString:@" "];
-    NSData *meshData = [meshDataString dataUsingEncoding:NSUTF8StringEncoding];
+-(void)sendMeshData:(char)dataVal forNode:(unsigned short)nodeId {
     
-    NSLog(@"Sent data: %@", meshDataString);
-    [_discoveredPeripheral writeValue:meshData forCharacteristic:_discoveredCharacteristic
+    NSData *meshDataPrefix = [@"N" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *nodeIdData = [NSData dataWithBytes: &nodeId length: sizeof(nodeId)];
+    NSData *dataValData = [NSData dataWithBytes: &dataVal length: sizeof(dataVal)];
+    
+    NSMutableData *combinedData = [NSMutableData data];
+    [combinedData appendData:meshDataPrefix];
+    [combinedData appendData:nodeIdData];
+    [combinedData appendData:dataValData];
+    
+    [_discoveredPeripheral writeValue:combinedData forCharacteristic:_discoveredCharacteristic
                                  type:CBCharacteristicWriteWithoutResponse];
+    
+    NSLog(@"Sent data: %@", combinedData);
 }
+
 
 @end
