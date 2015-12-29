@@ -97,9 +97,10 @@
 
 //TODO - Find a better place to put this
 //NODE IDs
+
 unsigned short nodeId1 = 10731;
 unsigned short nodeId2 = 10021;
-unsigned short nodeId3 = 33333;
+unsigned short nodeId3 = 3312;
 
 
 
@@ -122,7 +123,22 @@ unsigned short nodeId3 = 33333;
     //[self sendMeshData:sliderValue forNode:nodeId3];
 }
 
-
+- (IBAction)onButton3:(UIButton *)sender {
+    [self sendMeshData:255 forNode:nodeId3];
+}
+- (IBAction)offButton3:(UIButton *)sender {
+    [self sendMeshData:0 forNode:nodeId3];
+}
+- (IBAction)onButtonAll:(UIButton *)sender {
+    [self sendMeshData:255 forNode:nodeId1];
+    [self sendMeshData:255 forNode:nodeId2];
+    [self sendMeshData:255 forNode:nodeId3];
+}
+- (IBAction)offButtonAll:(UIButton *)sender {
+    [self sendMeshData:0 forNode:nodeId1];
+    [self sendMeshData:0 forNode:nodeId2];
+    [self sendMeshData:0 forNode:nodeId3];
+}
 
 
 //CENTRAL METHODS
