@@ -21,8 +21,7 @@
 		B9F9162415D5806400B3B398 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B9F9162215D5806400B3B398 /* InfoPlist.strings */; };
 		B9F9162615D5806400B3B398 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F9162515D5806400B3B398 /* main.m */; };
 		B9F9162A15D5806400B3B398 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F9162915D5806400B3B398 /* AppDelegate.m */; };
-		B9F9163315D5806500B3B398 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B9F9163115D5806500B3B398 /* MainStoryboard_iPhone.storyboard */; };
-		B9F9163615D5806500B3B398 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B9F9163415D5806500B3B398 /* MainStoryboard_iPad.storyboard */; };
+		B9F9163615D5806500B3B398 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B9F9163415D5806500B3B398 /* MainStoryboard.storyboard */; };
 		B9F9163915D5806500B3B398 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F9163815D5806500B3B398 /* ViewController.m */; };
 		B9F9164115D5808200B3B398 /* BTLECentralViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F9164015D5808200B3B398 /* BTLECentralViewController.m */; };
 		B9F9164415D5808F00B3B398 /* BTLEPeripheralViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F9164315D5808F00B3B398 /* BTLEPeripheralViewController.m */; };
@@ -49,8 +48,7 @@
 		B9F9162715D5806400B3B398 /* BTLE Transfer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BTLE Transfer-Prefix.pch"; sourceTree = "<group>"; };
 		B9F9162815D5806400B3B398 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		B9F9162915D5806400B3B398 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		B9F9163215D5806500B3B398 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
-		B9F9163515D5806500B3B398 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		B9F9163515D5806500B3B398 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		B9F9163715D5806500B3B398 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		B9F9163815D5806500B3B398 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		B9F9163F15D5808200B3B398 /* BTLECentralViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTLECentralViewController.h; sourceTree = "<group>"; };
@@ -108,8 +106,7 @@
 			children = (
 				B9F9162815D5806400B3B398 /* AppDelegate.h */,
 				B9F9162915D5806400B3B398 /* AppDelegate.m */,
-				B9F9163115D5806500B3B398 /* MainStoryboard_iPhone.storyboard */,
-				B9F9163415D5806500B3B398 /* MainStoryboard_iPad.storyboard */,
+				B9F9163415D5806500B3B398 /* MainStoryboard.storyboard */,
 				B9F9163715D5806500B3B398 /* ViewController.h */,
 				B9F9163815D5806500B3B398 /* ViewController.m */,
 				B9F9163F15D5808200B3B398 /* BTLECentralViewController.h */,
@@ -199,8 +196,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B9F9162415D5806400B3B398 /* InfoPlist.strings in Resources */,
-				B9F9163315D5806500B3B398 /* MainStoryboard_iPhone.storyboard in Resources */,
-				B9F9163615D5806500B3B398 /* MainStoryboard_iPad.storyboard in Resources */,
+				B9F9163615D5806500B3B398 /* MainStoryboard.storyboard in Resources */,
 				B92B557315E453690036A8A2 /* Icon-57.png in Resources */,
 				B92B557515E4536C0036A8A2 /* Icon-114.png in Resources */,
 				B92B557715E4541E0036A8A2 /* Icon-72.png in Resources */,
@@ -237,20 +233,12 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		B9F9163115D5806500B3B398 /* MainStoryboard_iPhone.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B9F9163215D5806500B3B398 /* en */,
-			);
-			name = MainStoryboard_iPhone.storyboard;
-			sourceTree = "<group>";
-		};
-		B9F9163415D5806500B3B398 /* MainStoryboard_iPad.storyboard */ = {
+		B9F9163415D5806500B3B398 /* MainStoryboard.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				B9F9163515D5806500B3B398 /* en */,
 			);
-			name = MainStoryboard_iPad.storyboard;
+			name = MainStoryboard.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
