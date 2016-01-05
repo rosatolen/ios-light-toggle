@@ -98,8 +98,8 @@
 //TODO - Find a better place to put this
 //NODE IDs
 
-unsigned short nodeId1 = 10731;
-unsigned short nodeId2 = 10021;
+unsigned short nodeId1 = 7120;
+unsigned short nodeId2 = 2912;
 unsigned short nodeId3 = 3312;
 
 
@@ -164,7 +164,7 @@ unsigned short nodeId3 = 3312;
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI
 {
     // Reject if the peripheral name is not FRUITY
-    if (![peripheral.name isEqualToString:@"FRUITY"]){
+    if (!([peripheral.name isEqualToString:@"FRUITY"] || [peripheral.name isEqualToString:@"AB"])) {
         return;
     }
     
