@@ -64,6 +64,10 @@
 @property (strong, nonatomic) CBCharacteristic      *discoveredCharacteristic;
 @property (strong, nonatomic) NSMutableData         *data;
 
+@property (weak, nonatomic) IBOutlet UIView *lightView1;
+@property (weak, nonatomic) IBOutlet UIView *lightView2;
+@property (weak, nonatomic) IBOutlet UIView *lightViewAll;
+
 @end
 
 
@@ -87,6 +91,8 @@
     
     _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
     _data = [[NSMutableData alloc] init];
+    
+    [self setButtonDisplay:false];
     
 }
 
@@ -259,6 +265,7 @@ unsigned short nodeId3 = 3312;
     handShakeAckData = [@"N 001 5000" dataUsingEncoding:NSUTF8StringEncoding];
     [peripheral writeValue:handShakeAckData forCharacteristic:characteristic type:CBCharacteristicWriteWithoutResponse];
     [self setStatus:@"Connected to Mesh"];
+    [self setButtonDisplay:true];
 }
 
 
@@ -271,6 +278,7 @@ unsigned short nodeId3 = 3312;
     self.discoveredCharacteristic = nil;
     
     [self setStatusDisconnected];
+    [self setButtonDisplay:false];
 }
 
 
@@ -292,6 +300,7 @@ unsigned short nodeId3 = 3312;
     _statusTextLabel.text = connectionStatus;
     NSLog(@"%@", connectionStatus);
     [_connectButtonTextLabel setTitle:@"CONNECT" forState:UIControlStateNormal];
+    [self setButtonDisplay:false];
 }
 
 
@@ -318,5 +327,17 @@ unsigned short nodeId3 = 3312;
     NSLog(@"Sent data: %@", combinedData);
 }
 
+-(void)setButtonDisplay:(BOOL)displayState {
+    if(displayState){
+        _lightView1.hidden = NO;
+        _lightView2.hidden = NO;
+        _lightViewAll.hidden = NO;
+        return;
+    }
+    
+    _lightView1.hidden = YES;
+    _lightView2.hidden = YES;
+    _lightViewAll.hidden = YES;
+}
 
 @end

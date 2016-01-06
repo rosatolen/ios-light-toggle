@@ -188,6 +188,9 @@
                     <size key="freeformSize" width="320" height="568"/>
                     <connections>
                         <outlet property="connectButtonTextLabel" destination="2jc-Td-doI" id="Wm3-AX-GQy"/>
+                        <outlet property="lightView1" destination="hZC-WG-3vI" id="4bH-Rv-vl9"/>
+                        <outlet property="lightView2" destination="jli-ep-EDw" id="GKI-Qv-Rc8"/>
+                        <outlet property="lightViewAll" destination="oC1-Hb-cJ4" id="Xcs-9Z-tFm"/>
                         <outlet property="statusTextLabel" destination="4Vs-8Y-loR" id="vXT-nM-c7O"/>
                     </connections>
                 </viewController>
