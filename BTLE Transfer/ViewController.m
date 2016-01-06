@@ -93,6 +93,7 @@
     _data = [[NSMutableData alloc] init];
     
     [self setButtonDisplay:false];
+    [self setStatusDisconnected];
     
 }
 
@@ -298,6 +299,7 @@ unsigned short nodeId3 = 3312;
 - (void)setStatusDisconnected {
     NSString *connectionStatus = @"Disconnected";
     _statusTextLabel.text = connectionStatus;
+    _statusTextLabel.textColor = [UIColor redColor];
     NSLog(@"%@", connectionStatus);
     [_connectButtonTextLabel setTitle:@"CONNECT" forState:UIControlStateNormal];
     [self setButtonDisplay:false];
@@ -306,6 +308,7 @@ unsigned short nodeId3 = 3312;
 
 - (void)setStatus:(NSString *) connectionStatus {
     _statusTextLabel.text = connectionStatus;
+    _statusTextLabel.textColor = [UIColor greenColor];
     NSLog(@"%@", connectionStatus);
     [_connectButtonTextLabel setTitle:@"DISCONNECT" forState:UIControlStateNormal];
 }
